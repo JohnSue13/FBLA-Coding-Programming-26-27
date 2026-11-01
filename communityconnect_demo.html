@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CommunityConnect | Volunteer Management</title>
+<style>
+:root{--navy:#17365d;--blue:#2563eb;--pale:#eef4fb;--ink:#172033;--muted:#64748b;--line:#dbe3ee;--green:#16835d;--red:#b42318}
+*{box-sizing:border-box}body{margin:0;background:#f5f7fb;color:var(--ink);font:15px/1.5 Arial,sans-serif}
+header{background:var(--navy);color:white;padding:22px max(24px,calc((100% - 1180px)/2));display:flex;justify-content:space-between;align-items:center;gap:20px}
+header h1{font-size:23px;margin:0}header p{margin:3px 0 0;color:#dbeafe}.tag{font-size:12px;border:1px solid #8da9ca;border-radius:20px;padding:5px 10px}
+main{max-width:1180px;margin:26px auto;padding:0 20px}.intro{margin-bottom:20px}.intro h2{margin:0 0 4px;font-size:25px}.intro p{color:var(--muted);margin:0}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:20px 0}.stat,.panel{background:white;border:1px solid var(--line);border-radius:12px;box-shadow:0 2px 8px #17203308}
+.stat{padding:17px}.stat span{display:block;color:var(--muted);font-size:13px}.stat strong{font-size:28px;color:var(--navy)}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0}.tabs button,.btn{border:0;border-radius:8px;padding:10px 15px;background:#e5edf8;color:var(--navy);font-weight:700;cursor:pointer}.tabs button.active,.btn.primary{background:var(--blue);color:white}.btn.danger{background:#fee4e2;color:var(--red)}.btn.small{padding:6px 9px;font-size:12px}
+.panel{padding:20px;margin-bottom:18px}.panel h3{margin:0 0 14px;color:var(--navy)}.toolbar{display:flex;gap:10px;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+input,select,textarea{width:100%;padding:10px 11px;border:1px solid #cbd5e1;border-radius:8px;font:inherit;background:white}
+input:focus,select:focus,textarea:focus{outline:2px solid #bfdbfe;border-color:var(--blue)}
+.search{max-width:320px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field label{display:block;font-size:13px;font-weight:700;margin-bottom:5px}.field.full{grid-column:1/-1}
+table{width:100%;border-collapse:collapse;min-width:650px}th,td{text-align:left;padding:11px 9px;border-bottom:1px solid var(--line)}th{font-size:12px;text-transform:uppercase;color:var(--muted);background:#f8fafc}td{font-size:14px}.table-wrap{overflow-x:auto}
+.badge{display:inline-block;border-radius:20px;padding:3px 9px;background:#e0f2fe;color:#075985;font-size:12px;font-weight:700}.badge.full{background:#fee2e2;color:#991b1b}.badge.open{background:#dcfce7;color:#166534}
+.hidden{display:none!important}.empty{padding:25px;text-align:center;color:var(--muted)}.notice{padding:11px 13px;border-radius:8px;background:#ecfdf5;color:#166534;margin-bottom:12px;display:none}.notice.show{display:block}
+.actions{display:flex;gap:6px;flex-wrap:wrap}.muted{color:var(--muted)}.event-card{border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:10px}.event-card h4{margin:0 0 5px}.event-card p{margin:3px 0;color:var(--muted)}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
+@media(max-width:720px){.stats{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}header{align-items:flex-start;flex-direction:column}.intro h2{font-size:21px}}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>CommunityConnect</h1><p>Volunteer coordination made simple</p></div>
+  <span class="tag">NONPROFIT MANAGEMENT DEMO</span>
+</header>
+<main>
+  <section class="intro">
+    <h2>Organization dashboard</h2>
+    <p>Recruit volunteers, organize service opportunities, and track community impact.</p>
+  </section>
+  <section class="stats">
+    <div class="stat"><span>Registered volunteers</span><strong id="volCount">0</strong></div>
+    <div class="stat"><span>Service opportunities</span><strong id="oppCount">0</strong></div>
+    <div class="stat"><span>Volunteer sign-ups</span><strong id="signupCount">0</strong></div>
+    <div class="stat"><span>Hours completed</span><strong id="hoursCount">0</strong></div>
+  </section>
+  <nav class="tabs" aria-label="Main sections">
+    <button class="active" data-tab="dashboard">Overview</button>
+    <button data-tab="volunteers">Volunteers</button>
+    <button data-tab="opportunities">Opportunities</button>
+    <button data-tab="signups">Sign-ups & hours</button>
+  </nav>
+  <div id="notice" class="notice" role="status"></div>
+
+  <section id="dashboard" class="tab-content">
+    <div class="panel">
+      <h3>Upcoming service opportunities</h3>
+      <div id="upcoming"></div>
+    </div>
+    <div class="panel">
+      <h3>How to use this demo</h3>
+      <p>1. Add volunteers in the Volunteers tab.</p>
+      <p>2. Create a service opportunity with a date, location, and capacity.</p>
+      <p>3. Register a volunteer for an opportunity in Sign-ups & hours.</p>
+      <p>4. Mark attendance and enter completed hours to update the impact dashboard.</p>
+      <p class="muted">Demo data is stored in this browser using localStorage. It is not uploaded to a server.</p>
+    </div>
+  </section>
+
+  <section id="volunteers" class="tab-content hidden">
+    <div class="panel">
+      <h3>Add a volunteer</h3>
+      <form id="volForm" class="grid">
+        <div class="field"><label for="volName">Full name</label><input id="volName" required maxlength="70" placeholder="Jordan Lee"></div>
+        <div class="field"><label for="volEmail">Email</label><input id="volEmail" type="email" required maxlength="120" placeholder="jordan@example.org"></div>
+        <div class="field"><label for="volPhone">Phone (optional)</label><input id="volPhone" type="tel" maxlength="25" placeholder="555-0100"></div>
+        <div class="field"><label for="volSkills">Skills / interests</label><input id="volSkills" maxlength="120" placeholder="Tutoring, gardening..."></div>
+        <div class="field full"><button class="btn primary" type="submit">Add volunteer</button></div>
+      </form>
+    </div>
+    <div class="panel">
+      <div class="toolbar"><h3>Volunteer directory</h3><input class="search" id="volSearch" placeholder="Search name, email, or skill"></div>
+      <div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Skills / interests</th><th>Action</th></tr></thead><tbody id="volRows"></tbody></table></div>
+    </div>
+  </section>
+
+  <section id="opportunities" class="tab-content hidden">
+    <div class="panel">
+      <h3>Create a service opportunity</h3>
+      <form id="oppForm" class="grid">
+        <div class="field"><label for="oppTitle">Opportunity name</label><input id="oppTitle" required maxlength="80" placeholder="Community garden cleanup"></div>
+        <div class="field"><label for="oppDate">Date</label><input id="oppDate" type="date" required></div>
+        <div class="field"><label for="oppLocation">Location</label><input id="oppLocation" required maxlength="100" placeholder="Community Center"></div>
+        <div class="field"><label for="oppCapacity">Volunteer capacity</label><input id="oppCapacity" type="number" min="1" max="500" value="10" required></div>
+        <div class="field full"><label for="oppDescription">Description</label><textarea id="oppDescription" rows="2" maxlength="250" placeholder="Describe the activity and what volunteers will do."></textarea></div>
+        <div class="field full"><button class="btn primary" type="submit">Create opportunity</button></div>
+      </form>
+    </div>
+    <div class="panel"><h3>All opportunities</h3><div id="oppList"></div></div>
+  </section>
+
+  <section id="signups" class="tab-content hidden">
+    <div class="panel">
+      <h3>Register a volunteer</h3>
+      <form id="signupForm" class="grid">
+        <div class="field"><label for="signupVolunteer">Volunteer</label><select id="signupVolunteer" required></select></div>
+        <div class="field"><label for="signupOpportunity">Opportunity</label><select id="signupOpportunity" required></select></div>
+        <div class="field full"><button class="btn primary" type="submit">Register volunteer</button></div>
+      </form>
+    </div>
+    <div class="panel">
+      <h3>Participation records</h3>
+      <p class="muted">After an activity, mark attendance and record the volunteer's completed hours.</p>
+      <div class="table-wrap"><table><thead><tr><th>Volunteer</th><th>Opportunity</th><th>Date</th><th>Status</th><th>Hours</th><th>Update</th></tr></thead><tbody id="signupRows"></tbody></table></div>
+    </div>
+  </section>
+</main>
+<footer>CommunityConnect sample application • Data remains in this browser</footer>
+<script>
+const STORAGE_KEY = "communityConnect_v1";
+const initialData = {
+  volunteers: [
+    {id:"v1",name:"Jordan Lee",email:"jordan@example.org",phone:"555-0101",skills:"Tutoring, reading"},
+    {id:"v2",name:"Taylor Morgan",email:"taylor@example.org",phone:"555-0102",skills:"Gardening, event setup"}
+  ],
+  opportunities: [
+    {id:"o1",title:"Neighborhood Garden Day",date:futureDate(7),location:"Riverside Community Garden",capacity:8,description:"Prepare planting beds and clean shared paths."},
+    {id:"o2",title:"Homework Help Session",date:futureDate(12),location:"Northside Library",capacity:6,description:"Support students with reading and math practice."}
+  ],
+  signups: [
+    {id:"s1",volunteerId:"v1",opportunityId:"o2",status:"Registered",hours:0}
+  ]
+};
+function futureDate(days){const d=new Date();d.setDate(d.getDate()+days);return d.toISOString().slice(0,10)}
+function loadData(){try{const saved=localStorage.getItem(STORAGE_KEY);return saved?JSON.parse(saved):structuredClone(initialData)}catch(e){return structuredClone(initialData)}}
+let data=loadData();
+function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(data));render()}
+function id(){return "id-"+Date.now()+"-"+Math.random().toString(16).slice(2,7)}
+function escapeHTML(value){return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function notify(message){const box=document.getElementById("notice");box.textContent=message;box.classList.add("show");setTimeout(()=>box.classList.remove("show"),2800)}
+function volunteer(id){return data.volunteers.find(v=>v.id===id)}
+function opportunity(id){return data.opportunities.find(o=>o.id===id)}
+function renderStats(){
+  document.getElementById("volCount").textContent=data.volunteers.length;
+  document.getElementById("oppCount").textContent=data.opportunities.length;
+  document.getElementById("signupCount").textContent=data.signups.length;
+  document.getElementById("hoursCount").textContent=data.signups.reduce((sum,s)=>sum+(Number(s.hours)||0),0);
+}
+function renderVolunteers(){
+  const q=document.getElementById("volSearch").value.toLowerCase();
+  const rows=data.volunteers.filter(v=>[v.name,v.email,v.skills].join(" ").toLowerCase().includes(q));
+  document.getElementById("volRows").innerHTML=rows.map(v=>`<tr><td>${escapeHTML(v.name)}</td><td>${escapeHTML(v.email)}</td><td>${escapeHTML(v.phone||"—")}</td><td>${escapeHTML(v.skills||"—")}</td><td><button class="btn danger small" onclick="deleteVolunteer('${v.id}')">Remove</button></td></tr>`).join("")||'<tr><td colspan="5" class="empty">No volunteers found.</td></tr>';
+}
+function renderOpportunities(){
+  const sorted=[...data.opportunities].sort((a,b)=>a.date.localeCompare(b.date));
+  document.getElementById("oppList").innerHTML=sorted.map(o=>{
+    const count=data.signups.filter(s=>s.opportunityId===o.id).length,open=count<o.capacity;
+    return `<article class="event-card"><div class="toolbar"><h4>${escapeHTML(o.title)}</h4><span class="badge ${open?"open":"full"}">${open?`${o.capacity-count} spots open`:"Full"}</span></div><p><b>Date:</b> ${escapeHTML(o.date)} &nbsp; <b>Location:</b> ${escapeHTML(o.location)}</p><p>${escapeHTML(o.description||"No description provided.")}</p><p class="muted">${count} / ${o.capacity} registered</p><button class="btn danger small" onclick="deleteOpportunity('${o.id}')">Delete opportunity</button></article>`;
+  }).join("")||'<p class="empty">No opportunities have been created.</p>';
+  document.getElementById("upcoming").innerHTML=sorted.filter(o=>o.date>=new Date().toISOString().slice(0,10)).slice(0,4).map(o=>`<article class="event-card"><h4>${escapeHTML(o.title)}</h4><p>${escapeHTML(o.date)} • ${escapeHTML(o.location)}</p></article>`).join("")||'<p class="empty">No upcoming opportunities yet.</p>';
+}
+function renderSignupOptions(){
+  const v=document.getElementById("signupVolunteer"),o=document.getElementById("signupOpportunity");
+  v.innerHTML='<option value="">Choose a volunteer</option>'+data.volunteers.map(x=>`<option value="${x.id}">${escapeHTML(x.name)}</option>`).join("");
+  o.innerHTML='<option value="">Choose an opportunity</option>'+data.opportunities.map(x=>{const n=data.signups.filter(s=>s.opportunityId===x.id).length;return `<option value="${x.id}" ${n>=x.capacity?"disabled":""}>${escapeHTML(x.title)} (${n}/${x.capacity})</option>`}).join("");
+}
+function renderSignups(){
+  document.getElementById("signupRows").innerHTML=data.signups.map(s=>{
+    const v=volunteer(s.volunteerId),o=opportunity(s.opportunityId);
+    return `<tr><td>${escapeHTML(v?.name||"Deleted volunteer")}</td><td>${escapeHTML(o?.title||"Deleted opportunity")}</td><td>${escapeHTML(o?.date||"—")}</td><td><span class="badge">${escapeHTML(s.status)}</span></td><td>${Number(s.hours)||0}</td><td><div class="actions"><button class="btn small" onclick="markAttendance('${s.id}')">Mark attended</button><button class="btn small" onclick="recordHours('${s.id}')">Add hours</button><button class="btn danger small" onclick="cancelSignup('${s.id}')">Cancel</button></div></td></tr>`;
+  }).join("")||'<tr><td colspan="6" class="empty">No registrations yet.</td></tr>';
+}
+function render(){renderStats();renderVolunteers();renderOpportunities();renderSignupOptions();renderSignups()}
+document.querySelectorAll(".tabs button").forEach(button=>button.addEventListener("click",()=>{
+  document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("active",b===button));
+  document.querySelectorAll(".tab-content").forEach(s=>s.classList.toggle("hidden",s.id!==button.dataset.tab));
+}));
+document.getElementById("volForm").addEventListener("submit",e=>{
+  e.preventDefault();const email=document.getElementById("volEmail").value.trim().toLowerCase();
+  if(data.volunteers.some(v=>v.email.toLowerCase()===email)){notify("A volunteer with that email is already registered.");return}
+  data.volunteers.push({id:id(),name:document.getElementById("volName").value.trim(),email,phone:document.getElementById("volPhone").value.trim(),skills:document.getElementById("volSkills").value.trim()});
+  e.target.reset();save();notify("Volunteer added successfully.");
+});
+document.getElementById("oppForm").addEventListener("submit",e=>{
+  e.preventDefault();const capacity=Number(document.getElementById("oppCapacity").value);
+  if(capacity<1||!Number.isInteger(capacity)){notify("Capacity must be a positive whole number.");return}
+  data.opportunities.push({id:id(),title:document.getElementById("oppTitle").value.trim(),date:document.getElementById("oppDate").value,location:document.getElementById("oppLocation").value.trim(),capacity,description:document.getElementById("oppDescription").value.trim()});
+  e.target.reset();document.getElementById("oppCapacity").value=10;save();notify("Opportunity created.");
+});
+document.getElementById("signupForm").addEventListener("submit",e=>{
+  e.preventDefault();const volunteerId=document.getElementById("signupVolunteer").value,opportunityId=document.getElementById("signupOpportunity").value;
+  if(!volunteerId||!opportunityId){notify("Choose both a volunteer and an opportunity.");return}
+  if(data.signups.some(s=>s.volunteerId===volunteerId&&s.opportunityId===opportunityId)){notify("This volunteer is already registered for that opportunity.");return}
+  const o=opportunity(opportunityId);
+  if(!o||data.signups.filter(s=>s.opportunityId===opportunityId).length>=o.capacity){notify("This opportunity is full. Choose another.");return}
+  data.signups.push({id:id(),volunteerId,opportunityId,status:"Registered",hours:0});save();notify("Volunteer registered.");
+});
+document.getElementById("volSearch").addEventListener("input",renderVolunteers);
+function deleteVolunteer(key){
+  const v=volunteer(key);if(!v||!confirm(`Remove ${v.name}? Their participation records will also be removed.`))return;
+  data.volunteers=data.volunteers.filter(x=>x.id!==key);data.signups=data.signups.filter(s=>s.volunteerId!==key);save();notify("Volunteer and related records removed.");
+}
+function deleteOpportunity(key){
+  const o=opportunity(key);if(!o||!confirm(`Delete "${o.title}" and its registrations?`))return;
+  data.opportunities=data.opportunities.filter(x=>x.id!==key);data.signups=data.signups.filter(s=>s.opportunityId!==key);save();notify("Opportunity and related registrations removed.");
+}
+function markAttendance(key){const s=data.signups.find(x=>x.id===key);if(!s)return;s.status="Attended";save();notify("Attendance updated.");}
+function recordHours(key){
+  const s=data.signups.find(x=>x.id===key);if(!s)return;
+  if(s.status!=="Attended"){notify("Mark attendance before recording completed hours.");return}
+  const value=prompt("Enter completed hours (0–24):",String(s.hours||0));if(value===null)return;
+  const hours=Number(value);if(!Number.isFinite(hours)||hours<0||hours>24){notify("Enter a number from 0 to 24.");return}
+  s.hours=hours;save();notify("Service hours saved.");
+}
+function cancelSignup(key){if(!confirm("Cancel this registration?"))return;data.signups=data.signups.filter(s=>s.id!==key);save();notify("Registration cancelled.");}
+render();
+</script>
+</body>
+</html>
